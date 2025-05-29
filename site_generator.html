@@ -1,0 +1,125 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Генератор сайта-сетки</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+        .form-container input, .form-container textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .form-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #preview {
+            width: 100%;
+            height: 400px;
+            margin-top: 20px;
+        }
+        .notification {
+            color: green;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Генератор постов</h2>
+    <div class="form-container">
+        <label>Адрес обложки поста:</label>
+        <input type="text" id="cover" placeholder="например, cover.jpg">
+        <label>Заголовок поста (жирный):</label>
+        <input type="text" id="title" placeholder="Заголовок">
+        <label>Описание поста (обычный текст):</label>
+        <textarea id="desc" rows="3" placeholder="Описание поста"></textarea>
+        <label>Ссылка поста (https://...):</label>
+        <input type="text" id="link" placeholder="https://...">
+        <button onclick="addPost()">Добавить</button>
+        <div class="notification" id="notif" style="display:none;">Новый пост добавлен!</div>
+        <button onclick="generateHTML()">Сгенерировать сайт</button>
+        <br><br>
+        <textarea id="preview"></textarea><br>
+        <button onclick="saveHTML()">Сохранить</button>
+    </div>
+
+    <script>
+        let posts = [];
+
+        function addPost() {
+            const cover = document.getElementById('cover').value;
+            const title = document.getElementById('title').value;
+            const desc = document.getElementById('desc').value;
+            const link = document.getElementById('link').value;
+
+            if (cover && title && desc && link) {
+                posts.push({cover, title, desc, link});
+                document.getElementById('cover').value = '';
+                document.getElementById('title').value = '';
+                document.getElementById('desc').value = '';
+                document.getElementById('link').value = '';
+                document.getElementById('notif').style.display = 'block';
+                setTimeout(() => document.getElementById('notif').style.display = 'none', 2000);
+            }
+        }
+
+        function generateHTML() {
+            let html = `
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пост-</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: white; padding: 20px; }
+        .container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 900px; margin: auto; }
+        .grid-item img { width: 100%; }
+        .caption { font-size: 18px; color: #333; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="grid-item">
+            <img src="/logo.png" alt="Logo">
+        </div>`;
+
+            posts.forEach(p => {
+                html += `
+        <div class="grid-item">
+            <a href="${p.link}">
+                <img src="${p.cover}" alt="">
+            </a>
+            <p class="caption"><b>${p.title}</b> ${p.desc}</p>
+        </div>`;
+            });
+
+            html += `
+    </div>
+</body>
+</html>`;
+            document.getElementById('preview').value = html;
+        }
+
+        function saveHTML() {
+            const blob = new Blob([document.getElementById('preview').value], {type: "text/html"});
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = "index.html";
+            a.click();
+        }
+    </script>
+</body>
+</html>
